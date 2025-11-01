@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 import yaml
 
@@ -17,7 +17,7 @@ x_test = processed_test['clean_comment'].values
 y_train = processed_train['category'].values
 y_test = processed_test['category'].values
 
-vectorizer = CountVectorizer(max_features=max_features)
+vectorizer = TfidfVectorizer(max_features=max_features)
 
 x_train_bow = vectorizer.fit_transform(x_train)
 x_test_bow = vectorizer.transform(x_test)
@@ -31,5 +31,5 @@ test_bow['labels'] = y_test
 data_path = os.path.join('data','interim')
 os.makedirs(data_path)
 
-train_bow.to_csv(os.path.join(data_path, 'vectorized_train_data.csv'))
-test_bow.to_csv(os.path.join(data_path, 'vectorized_test_data.csv'))
+train_bow.to_csv(os.path.join(data_path, 'tfidf_train_data.csv'))
+test_bow.to_csv(os.path.join(data_path, 'tfidf_test_data.csv'))

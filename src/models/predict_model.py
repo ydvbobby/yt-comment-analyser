@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 model = pickle.load(open('models/model.pkl', 'rb'))
 
-test_data = pd.read_csv('data/interim/vectorized_test_data.csv')
+test_data = pd.read_csv('data/interim/tfidf_test_data.csv')
 
 x_test = test_data.drop(['labels'],axis=1)
 y_test = test_data['labels']
