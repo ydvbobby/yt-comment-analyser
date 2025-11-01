@@ -1,0 +1,97 @@
+schema: '2.0'
+stages:
+  make_datasets:
+    cmd: python src/data/make_dataset.py
+    deps:
+    - path: data/external
+      hash: md5
+      md5: fd6fe617b8e3325a64057cd309ba89b5.dir
+      size: 6888934
+      nfiles: 2
+    - path: src/data/make_dataset.py
+      hash: md5
+      md5: 2a6ea916a7f301b92484985bd123f798
+      size: 1779
+    params:
+      params.yaml:
+        make_dataset.test_size: 0.2
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 4a1cb0fc0b6bd9f051044bb6e3cbbe1c.dir
+      size: 7138591
+      nfiles: 2
+  preprocess_data:
+    cmd: python src/data/preprocess_data.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 4a1cb0fc0b6bd9f051044bb6e3cbbe1c.dir
+      size: 7138591
+      nfiles: 2
+    - path: src/data/preprocess_data.py
+      hash: md5
+      md5: 33f5a84fb808b6846c5c9aae8dc880b7
+      size: 1868
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 3c19ef598e5e1359b65a1b9883cd44a9.dir
+      size: 5356533
+      nfiles: 2
+  build_features:
+    cmd: python src/features./build_features.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 3c19ef598e5e1359b65a1b9883cd44a9.dir
+      size: 5356533
+      nfiles: 2
+    - path: src/features/build_features.py
+      hash: md5
+      md5: 32de0c2754e8f4f35a185593f1b13dc7
+      size: 1151
+    params:
+      params.yaml:
+        build_features.max_features: 1000
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: 4b507b213f1c2857cd6bac7b633451ca.dir
+      size: 74386659
+      nfiles: 2
+  train_model:
+    cmd: python src/models/train_model.py
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: 4b507b213f1c2857cd6bac7b633451ca.dir
+      size: 74386659
+      nfiles: 2
+    - path: src/models/train_model.py
+      hash: md5
+      md5: bd145fa7cc8a37f9f8a142f0ee84d315
+      size: 672
+    outs:
+    - path: models
+      hash: md5
+      md5: 184df219dc0ba42205ce7e35bb8651c0.dir
+      size: 30770
+      nfiles: 1
+  predict_model:
+    cmd: python src/models/predict_model.py
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: 4b507b213f1c2857cd6bac7b633451ca.dir
+      size: 74386659
+      nfiles: 2
+    - path: models
+      hash: md5
+      md5: 184df219dc0ba42205ce7e35bb8651c0.dir
+      size: 30770
+      nfiles: 1
+    - path: src/models/predict_model.py
+      hash: md5
+      md5: fc93fb1d6aee1a5d6ad730383bb3ed1f
+      size: 653
