@@ -2,4 +2,4 @@ make_dataset:
   test_size: 0.2
 
 build_features:
-  max_features: 5000
+  max_features: 8000
