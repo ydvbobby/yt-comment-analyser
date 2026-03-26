@@ -1,4 +1,4 @@
-﻿# MLflow
+# MLflow
 mlflow.db
 mlruns/
 
@@ -81,8 +81,11 @@ target/
 # Jupyter NB Checkpoints
 .ipynb_checkpoints/
 
-# exclude data from source control by default
-/data/
+# Data - ignore raw data files but track with DVC
+/data/raw/
+/data/processed/
+/data/external/
+!*.dvc
 
 # Mac OS-specific storage files
 .DS_Store
