@@ -15,26 +15,20 @@ stages:
     - src/data/preprocess_data.py
     outs:
     - data/processed
-  build_features:
-    cmd: python src/features./build_features.py
-    deps:
-    - data/processed
-    - src/features/build_features.py
-    params:
-    - build_features.max_features
-    outs:
-    - data/interim
+
   train_model:
     cmd: python src/models/train_model.py
     deps:
-    - data/interim
+    - data/processed
     - src/models/train_model.py
+    params:
+    - train_model.max_features
     outs:
-    - models
+    - artifacts/models
 
   predict_model:
     cmd: python src/models/predict_model.py
     deps:
     - src/models/predict_model.py
-    - data/interim
-    - models
+    - data/processed
+    - artifacts

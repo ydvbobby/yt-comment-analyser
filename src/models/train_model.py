@@ -1,24 +1,39 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 import pandas as pd
 import pickle
 import os
-
-vectorized_train_data = pd.read_csv('data/interim/bow_train_data.csv')
-vectorized_test_data = pd.read_csv('data/interim/bow_test_data.csv')
-
-x_train = vectorized_train_data.drop(['labels'],axis=1)
-x_test = vectorized_test_data.drop(['labels'],axis=1)
-y_train = vectorized_train_data['labels']
-y_test = vectorized_test_data['labels']
+from sklearn.pipeline import Pipeline
+from scipy import sparse
+from sklearn.feature_extraction.text import CountVectorizer
+import yaml
 
 
+processed_train = pd.read_csv('data/processed/processed_train.csv')
+processed_train.fillna("",inplace=True)
 
-model = LogisticRegression()
+x_train = processed_train['clean_comment']
+y_train = processed_train['category'].map({-1:0,0:1,1:2})
 
-model.fit(x_train, y_train)
-os.makedirs("models", exist_ok=True)
+max_features = yaml.safe_load(open('params.yaml','r'))['train_model']['max_features']
+vectorizer = CountVectorizer(max_features=max_features, ngram_range=(1,2))
 
-pickle.dump(model, open('models/model.pkl', "wb"))
+model = XGBClassifier(
+        objective="multi:softprob",   # multiclass
+        num_class=3,                  # number of classes
+        max_depth=6,
+        n_estimators=1000,
+        learning_rate=0.1,
+        tree_method="hist")
+
+pipeline = Pipeline([
+    ('vectorizer',vectorizer),
+    ('model',model)
+])
+
+pipeline.fit(x_train,y_train)
+
+os.makedirs("artifacts/models",exist_ok=True)
+
+pickle.dump(pipeline, open('artifacts/models/pipeline.pkl', "wb"))
 
 

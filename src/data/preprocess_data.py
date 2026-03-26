@@ -46,7 +46,10 @@ def prerocess(df):
     return df
 
 processed_train = prerocess(train_data)
+processed_train.fillna("",inplace=True)
+
 processed_test  = prerocess(test_data)
+processed_test.fillna("",inplace=True)
 
 data_path = os.path.join('data', 'processed')
 os.makedirs(data_path)

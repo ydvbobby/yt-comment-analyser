@@ -1,4 +1,4 @@
 [core]
     remote = myremote
 ['remote "myremote"']
-    url = C:\Users\bobby\AppData\Local\Temp\dvcremote
+    url = s3://bobby-kumar-1950/dvc-store

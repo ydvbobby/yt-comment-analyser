@@ -2,25 +2,49 @@ import pandas as pd
 import pickle
 import json
 from sklearn.metrics import classification_report, confusion_matrix
+from scipy import sparse
+import mlflow
+import mlflow.sklearn
+from mlflow.models.signature import infer_signature
+import os
+from dotenv import load_dotenv
 
-model = pickle.load(open('models/model.pkl', 'rb'))
+load_dotenv()
 
-test_data = pd.read_csv('data/interim/bow_test_data.csv')
 
-x_test = test_data.drop(['labels'],axis=1)
-y_test = test_data['labels']
+model = pickle.load(open('artifacts/models/pipeline.pkl', 'rb'))
 
-predictions = model.predict(x_test)
 
-classification_report = classification_report(predictions, y_test)
-confusion_matrix  = confusion_matrix(predictions, y_test)
 
-metrics_dict = {
-    'classification_report': classification_report
-}
+test_data = pd.read_csv('data/processed/processed_test.csv')
+test_data.dropna(inplace=True)
+x_test = test_data['clean_comment']
+y_test = test_data['category'].map({-1:0,0:1,1:2})
 
-with open('metrics.json','w') as file:
-    json.dump(metrics_dict, file, indent=4)
+
+
+mlflow.set_tracking_uri("http://3.7.120.192:5000/")
+mlflow.set_experiment("march_Experiment")
+
+with mlflow.start_run():
+
+    predictions = model.predict(x_test)
+
+    classification_report = classification_report(predictions, y_test, output_dict=True)
+    
+    
+    for label, metrics in classification_report.items():
+        if isinstance(metrics, dict):
+            for metric_name, value in metrics.items():
+                mlflow.log_metric(f"{label}_{metric_name}", value)
+        else:
+            mlflow.log_metric(label, metrics)
+    
+    model_signature = infer_signature(x_test, predictions)
+            
+    mlflow.sklearn.log_model(model,name="model",registered_model_name="yt-comment-analyzer", signature=model_signature)
+            
+
 
 
 
