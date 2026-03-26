@@ -13,6 +13,7 @@ mlflow~=2.18.0
 
 # Data Version Control
 dvc[s3,gcs]~=3.60.0
+pathspec<0.13.0
 
 # Backend API
 fastapi~=0.115.0
