@@ -47,7 +47,7 @@ with mlflow.start_run():
     
     model_signature = infer_signature(x_test, predictions)
             
-    mlflow.sklearn.log_model(model,artifact_path="model",registered_model_name="yt-comment-analyzer", signature=model_signature)
+    mlflow.sklearn.log_model(model,artifact_path="model", signature=model_signature)
     
 
 
