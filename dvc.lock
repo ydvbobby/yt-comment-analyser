@@ -101,5 +101,5 @@ stages:
       nfiles: 2
     - path: src/models/predict_model.py
       hash: md5
-      md5: db1dfa4a2e4641a4b995f3e3b3d9f9b8
-      size: 1343
+      md5: 1dcf4dbde9abf32ee48db01b985fd50c
+      size: 1426

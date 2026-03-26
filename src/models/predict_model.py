@@ -7,7 +7,12 @@ import mlflow
 import mlflow.sklearn
 from mlflow.models.signature import infer_signature
 import os
+import sys
 from dotenv import load_dotenv
+
+# Fix Windows console encoding for Unicode characters
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 load_dotenv()
 
@@ -42,9 +47,7 @@ with mlflow.start_run():
     
     model_signature = infer_signature(x_test, predictions)
             
-    mlflow.sklearn.log_model(model,registered_model_name="yt-comment-analyzer", signature=model_signature)
-            
-
-
+    mlflow.sklearn.log_model(model,artifact_path="model",registered_model_name="yt-comment-analyzer", signature=model_signature)
+    
 
 
