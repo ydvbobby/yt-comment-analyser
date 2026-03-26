@@ -1,4 +1,8 @@
+﻿# MLflow
+mlflow.db
+mlruns/
 
+# Existing rules
 reports
 # Byte-compiled / optimized / DLL files
 __pycache__/
