@@ -29,26 +29,26 @@ y_test = test_data['category'].map({-1:0,0:1,1:2})
 
 
 mlflow.set_tracking_uri(os.getenv("mlflow_tracking_uri"))
-print(mlflow.get_artifact_uri())  
-# mlflow.set_experiment("april_Experiment")
 
-# with mlflow.start_run():
+mlflow.set_experiment("april_Experiment")
 
-#     predictions = model.predict(x_test)
+with mlflow.start_run():
 
-#     classification_report = classification_report(predictions, y_test, output_dict=True)
+    predictions = model.predict(x_test)
+
+    classification_report = classification_report(predictions, y_test, output_dict=True)
     
     
-#     for label, metrics in classification_report.items():
-#         if isinstance(metrics, dict):
-#             for metric_name, value in metrics.items():
-#                 mlflow.log_metric(f"{label}_{metric_name}", value)
-#         else:
-#             mlflow.log_metric(label, metrics)
+    for label, metrics in classification_report.items():
+        if isinstance(metrics, dict):
+            for metric_name, value in metrics.items():
+                mlflow.log_metric(f"{label}_{metric_name}", value)
+        else:
+            mlflow.log_metric(label, metrics)
     
-#     model_signature = infer_signature(x_test, predictions)
+    model_signature = infer_signature(x_test, predictions)
             
-#     mlflow.sklearn.log_model(model,artifact_path="model", signature=model_signature)
+    mlflow.sklearn.log_model(model,artifact_path="model", signature=model_signature)
     
 
 
