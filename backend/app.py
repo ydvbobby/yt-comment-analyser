@@ -55,9 +55,7 @@ print(mlflow.get_tracking_uri())
 print("______________________________________________________________________________")
 
 # Load model from Unity Catalog
-model = mlflow.sklearn.load_model(
-    "models:/yt-comment-analyzer/Production"
-)
+model = mlflow.sklearn.load_model(model_uri = "models:/yt-comment-analyzer/1")
 
 #=============================================================================================================================================
 def prerocess(comment:str):
