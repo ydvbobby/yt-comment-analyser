@@ -3,4 +3,4 @@ make_dataset:
   random_state: 42
 
 train_model:
-  max_features: 5000
+  max_features: 4000

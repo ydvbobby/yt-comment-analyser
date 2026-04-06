@@ -21,7 +21,7 @@ model = XGBClassifier(
         objective="multi:softprob",   # multiclass
         num_class=3,                  # number of classes
         max_depth=6,
-        n_estimators=1000,
+        n_estimators=800,
         learning_rate=0.1,
         tree_method="hist")
 

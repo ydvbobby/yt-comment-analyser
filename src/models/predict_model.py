@@ -28,8 +28,8 @@ y_test = test_data['category'].map({-1:0,0:1,1:2})
 
 
 
-mlflow.set_tracking_uri("http://3.7.120.192:5000/")
-mlflow.set_experiment("march_Experiment")
+mlflow.set_tracking_uri(os.getenv("mlflow_tracking_uri"))
+mlflow.set_experiment("april_Experiment")
 
 with mlflow.start_run():
 
