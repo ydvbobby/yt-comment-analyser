@@ -41,3 +41,4 @@ mypy~=1.12.0
 
 # Windows-specific
 pywin32>=300; sys_platform == 'win32'
+boto3
