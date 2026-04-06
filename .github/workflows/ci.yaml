@@ -33,3 +33,21 @@ jobs:
 
     - name: Run DVC pipeline
       run: dvc repro
+
+    - name: push to   
+      run : dvc push
+      
+    - name: configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Commit and push changes
+      if: ${{github.actor != 'github-actions[bot]'}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git add .
+        git commit -m "Update DVC pipeline results [skip ci]" || echo "No changes to commit"
+        git push origin ${{github.ref_name}}
+        
