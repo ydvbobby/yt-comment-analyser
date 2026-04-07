@@ -1,4 +1,6 @@
-﻿// State management
+﻿
+
+// State management
 let state = {
   posComments: [],
   negComments: [],
@@ -165,8 +167,14 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
       return;
     }
 
+require('dotenv').config();
+
+const apiKey = process.env.YOUTUBE_API_KEY;
+
+console.log(apiKey);
+
     const videoId = match[1];
-    const apikey = 'AIzaSyCLdehuNO2cgy6C6F7cNQ6cgKMYcTqZXGY';
+    const apikey = apiKey
     
     document.getElementById('video-title').textContent = 'Analyzing video...';
     document.getElementById('video-title').classList.remove('placeholder');
