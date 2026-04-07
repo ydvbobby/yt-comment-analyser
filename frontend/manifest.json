@@ -1,0 +1,20 @@
+﻿{
+  "manifest_version": 3,
+  "name": "YouTube Sentiment Analyzer",
+  "version": "1.0.0",
+  "description": "Analyze the sentiment of YouTube video comments using ML",
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "permissions": ["tabs", "activeTab"]
+}

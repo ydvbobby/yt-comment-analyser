@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Sentiment Analyzer</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>?? Comment Analysis</h1>
+      <p class="subtitle">AI-powered sentiment detection</p>
+    </header>
+
+    <div class="video-info">
+      <h2 id="video-title" class="placeholder">Open a YouTube video to analyze</h2>
+    </div>
+
+    <div class="progress-container" id="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="progress-text" id="progress-text">Fetching comments...</p>
+    </div>
+
+    <div class="sentiment-container hidden" id="sentiment-container">
+      <div class="box_container">
+        <div class="box positive" data-tab="positive">
+          <h3>Positive</h3>
+          <p class="percent" id="positive-percent">0%</p>
+          <p class="count" id="positive-count">0 comments</p>
+        </div>
+
+        <div class="box negative" data-tab="negative">
+          <h3>Negative</h3>
+          <p class="percent" id="negative-percent">0%</p>
+          <p class="count" id="negative-count">0 comments</p>
+        </div>
+
+        <div class="box neutral" data-tab="neutral">
+          <h3>Neutral</h3>
+          <p class="percent" id="neutral-percent">0%</p>
+          <p class="count" id="neutral-count">0 comments</p>
+        </div>
+      </div>
+
+      <div class="graph" id="sentiment-graph">
+        <p class="placeholder">Click "Fetch Comments" to generate chart</p>
+      </div>
+    </div>
+
+    <div class="tabs hidden" id="tabs-container">
+      <div class="tab-header">
+        <button class="tab-btn positive active" data-tab="positive">?? Positive</button>
+        <button class="tab-btn neutral" data-tab="neutral">?? Neutral</button>
+        <button class="tab-btn negative" data-tab="negative">?? Negative</button>
+      </div>
+      <div class="tab-content" id="tab-content-positive"></div>
+      <div class="tab-content hidden" id="tab-content-neutral"></div>
+      <div class="tab-content hidden" id="tab-content-negative"></div>
+    </div>
+
+    <div class="fetch-container">
+      <button id="fetch_comments">
+        <span class="spinner"></span>
+        <span class="btn-text">?? Fetch Comments</span>
+      </button>
+    </div>
+
+    <div class="status hidden" id="status"></div>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
