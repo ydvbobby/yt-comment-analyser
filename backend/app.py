@@ -36,7 +36,7 @@ app = FastAPI()
 
 # Allow your extension's origin:
 origins = [
-    "chrome-extension://phbbikjafleackepjghehkoldjdolkdc"  # your extension ID
+    "chrome-extension://ddonnkogojeammnmjkhonjookeelpjok"  # your extension ID
 ]
 
 app.add_middleware(
@@ -55,7 +55,7 @@ print(mlflow.get_tracking_uri())
 print("______________________________________________________________________________")
 
 # Load model from Unity Catalog
-model = mlflow.sklearn.load_model(model_uri = "models:/yt-comment-analyzer/1")
+model = mlflow.sklearn.load_model(model_uri = "models:/yt-comment-analyzer/Production")
 
 #=============================================================================================================================================
 def prerocess(comment:str):
