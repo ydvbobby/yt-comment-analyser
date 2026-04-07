@@ -1,38 +1,52 @@
-﻿"""Simple integration tests for the FastAPI backend API endpoints.
-
-These tests assume the FastAPI server is running at http://127.0.0.1:8000
-Run the server first: uvicorn backend.app:app --host 127.0.0.1 --port 8000
-Then run tests: pytest scripts/tests/test_backend_api.py
-"""
-
-import pytest
+﻿import pytest
 import requests
+import time
 
 BASE_URL = "http://127.0.0.1:8000"
 
 
+def wait_for_server():
+    """Wait until FastAPI server is ready."""
+    for _ in range(10):
+        try:
+            r = requests.get(f"{BASE_URL}/docs")
+            if r.status_code == 200:
+                return
+        except Exception:
+            pass
+        time.sleep(2)
+    pytest.fail("Server did not start in time")
+
+
 class TestBackendAPI:
-    """Integration tests for the FastAPI backend endpoints."""
     
+    @classmethod
+    def setup_class(cls):
+        wait_for_server()
+
     def test_predict_endpoint(self):
-        """Test the /predict endpoint returns sentiment predictions."""
         response = requests.post(
             f"{BASE_URL}/predict",
-            json={"text": ["This is a great product!"]}
+            json={"text": ["This is a great product!"]},
+            timeout=10
         )
+
         assert response.status_code == 200
+
         data = response.json()
+
         assert "predictions" in data
+        assert isinstance(data["predictions"], list)
         assert len(data["predictions"]) == 1
-        # Verify prediction is in original label space {-1, 0, 1}
         assert data["predictions"][0] in [-1, 0, 1]
-    
+
     def test_pie_chart_endpoint(self):
-        """Test the /pie-chart endpoint generates a PNG image."""
         response = requests.post(
             f"{BASE_URL}/pie-chart",
-            json={"positive": 50, "neutral": 30, "negative": 20}
+            json={"positive": 50, "neutral": 30, "negative": 20},
+            timeout=10
         )
+
         assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
+        assert "image/png" in response.headers.get("content-type", "")
         assert len(response.content) > 0
