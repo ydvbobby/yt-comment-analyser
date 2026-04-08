@@ -48,7 +48,7 @@ jobs:
     
     - name: Start FastAPI server
       run: |
-          uvicorn backend.app:app --host 0.0.0.0 --port 8000
+          nohup uvicorn backend.app:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 
           echo "Waiting for server to start..."
           for i in {1..15}; do
