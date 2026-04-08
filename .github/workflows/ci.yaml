@@ -66,6 +66,10 @@ jobs:
     - name: Test API endpoints
       run: pytest scripts/tests/test_backend_api.py
 
+    - name: Show server logs on failure
+      if: failure()
+      run: cat server.log
+
     - name: push to  dvc
       run : dvc push
 
