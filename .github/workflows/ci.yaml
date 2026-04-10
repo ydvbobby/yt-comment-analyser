@@ -42,19 +42,10 @@ jobs:
     - name: test_model_performance
       run: pytest scripts/tests/test_model_performance.py
 
-    - name: Download NLTK data
-      run: |
-            python - <<EOF
-            import nltk
-            nltk.download('punkt')
-            nltk.download('punkt_tab')
-            nltk.download('stopwords')
-
-            EOF
-    
+  
     - name: Start FastAPI server
       run: |
-          nohup uvicorn backend.app:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
+          nohup uvicorn backend.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 
           echo "Waiting for server to start..."
           for i in {1..15}; do
@@ -88,7 +79,7 @@ jobs:
       if: success()
       run: |
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/yt-comment-analyser:latest
-        
+
     - name: push to  dvc
       run : dvc push
 
