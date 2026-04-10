@@ -1,4 +1,4 @@
-
+﻿base_url = 'http://15.206.73.219:80'
 
 // State management
 let state = {
@@ -41,7 +41,7 @@ function setLoading(loading) {
 }
 
 async function getTotalComments(videoId) {
-  const response = await fetch('http://127.0.0.1:8000/fetch-youtube-comments', {
+  const response = await fetch(base_url + '/fetch-youtube-comments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ video_id: videoId })
@@ -56,7 +56,7 @@ async function getTotalComments(videoId) {
 }
 
 async function getPredictions(comments) {
-  const response = await fetch('http://127.0.0.1:8000/predict', {
+  const response = await fetch(base_url + '/predict', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: comments })
@@ -76,7 +76,7 @@ async function getPredictions(comments) {
 
 async function fetchPieChart(pos, neu, neg) {
   try {
-    const response = await fetch('http://127.0.0.1:8000/pie-chart', {
+    const response = await fetch(base_url + '/pie-chart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ positive: pos, neutral: neu, negative: neg })
