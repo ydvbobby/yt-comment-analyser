@@ -1,4 +1,4 @@
-﻿
+
 
 // State management
 let state = {
@@ -10,7 +10,7 @@ let state = {
 
 function showStatus(message, type = '') {
   const statusEl = document.getElementById('status');
-  const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : '⏳';
+  const icon = type === 'error' ? '?' : type === 'success' ? '?' : '?';
   statusEl.innerHTML = '<span class="icon">' + icon + '</span> ' + message;
   statusEl.className = 'status ' + type;
   statusEl.classList.remove('hidden');
@@ -40,36 +40,19 @@ function setLoading(loading) {
   state.isLoading = loading;
 }
 
-async function getTotalComments(videoId, apikey) {
-  let allComments = [];
-  let pageToken = '';
-  let totalFetched = 0;
-  const maxComments = 500;
+async function getTotalComments(videoId) {
+  const response = await fetch('http://127.0.0.1:8000/fetch-youtube-comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ video_id: videoId })
+  });
 
-  while (true) {
-    let apiUrl = 'https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=' + videoId + '&maxResults=100&key=' + apikey;
-    if (pageToken) apiUrl += '&pageToken=' + pageToken;
-
-    const response = await fetch(apiUrl);
-    const data = await response.json();
-
-    if (!data.items) break;
-
-    data.items.forEach(item => {
-      allComments.push(item.snippet.topLevelComment.snippet.textDisplay);
-      totalFetched++;
-    });
-
-    updateProgress(Math.min((totalFetched / maxComments) * 50, 50), 'Fetched ' + totalFetched + ' comments...');
-
-    if (data.nextPageToken && totalFetched < maxComments) {
-      pageToken = data.nextPageToken;
-    } else {
-      break;
-    }
+  if (!response.ok) {
+    throw new Error('Failed to fetch comments from backend');
   }
 
-  return { totalComments: allComments.length, allComments: allComments };
+  const data = await response.json();
+  return { totalComments: data.total_comments, allComments: data.comments };
 }
 
 async function getPredictions(comments) {
@@ -123,7 +106,7 @@ function renderComments() {
       container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">No comments</p>';
       return;
     }
-    container.innerHTML = comments.slice(0, 20).map(c => '<div class="comment-item">' + c + '</div>').join('');
+    container.innerHTML = comments.map(c => '<div class="comment-item">' + c + '</div>').join('');
   };
 
   renderTab(state.posComments, 'tab-content-positive');
@@ -167,14 +150,7 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
       return;
     }
 
-require('dotenv').config();
-
-const apiKey = process.env.YOUTUBE_API_KEY;
-
-console.log(apiKey);
-
     const videoId = match[1];
-    const apikey = apiKey
     
     document.getElementById('video-title').textContent = 'Analyzing video...';
     document.getElementById('video-title').classList.remove('placeholder');
@@ -183,7 +159,7 @@ console.log(apiKey);
     hideStatus();
 
     try {
-      const commentsData = await getTotalComments(videoId, apikey);
+      const commentsData = await getTotalComments(videoId);
       const allComments = commentsData.allComments;
 
       if (allComments.length === 0) {
@@ -205,7 +181,7 @@ console.log(apiKey);
       document.getElementById('sentiment-container').classList.remove('hidden');
       await fetchPieChart(predictions.pos, predictions.neu, predictions.neg);
       renderComments();
-      document.getElementById('tabs-container').classList.remove('hidden');
+      document.getElementById('tabs-container').classList.add('visible');
 
       showStatus('Analyzed ' + allComments.length + ' comments', 'success');
       setTimeout(() => { hideProgress(); setLoading(false); }, 1000);

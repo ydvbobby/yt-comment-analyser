@@ -72,6 +72,23 @@ jobs:
       if: failure()
       run: cat server.log
 
+    - name: login to docker hub
+      if : success()
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: build docker image
+      if: success()
+      run: |
+        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/yt-comment-analyser:latest .
+    
+    - name: push to docker hub
+      if: success()
+      run: |
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/yt-comment-analyser:latest
+        
     - name: push to  dvc
       run : dvc push
 
