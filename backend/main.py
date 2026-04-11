@@ -28,6 +28,7 @@ import boto3
 
 s3 = boto3.client("s3")
 
+
 #======================================================================================================================================================
 
 load_dotenv()
@@ -96,7 +97,9 @@ def prerocess(comment:str):
     
     return comment
 #=============================================================================================================================================
-
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 
 @app.post('/predict')
 def predict(data: InputData):
@@ -228,3 +231,8 @@ async def fetch_youtube_comments(request: YouTubeFetchRequest):
         "total_comments": len(all_comments),
         "comments": all_comments
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
