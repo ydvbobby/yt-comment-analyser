@@ -129,7 +129,8 @@ class TestModelPerformanceAndProductionPromotion:
         This is the primary metric for overall model performance.
         """
         model = staging_model["model"]
-        predictions = model.predict(test_data["texts"])
+        preds = model.predict(test_data["texts"])
+        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
         
         # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
         # Model was trained with mapping: {-1:0, 0:1, 1:2}
@@ -178,7 +179,8 @@ class TestModelPerformanceAndProductionPromotion:
         Recall measures the ability to find all positive samples.
         """
         model = staging_model["model"]
-        predictions = model.predict(test_data["texts"])
+        preds = model.predict(test_data["texts"])
+        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
         
         # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
         # Model was trained with mapping: {-1:0, 0:1, 1:2}
@@ -205,7 +207,8 @@ class TestModelPerformanceAndProductionPromotion:
         F1 score is the harmonic mean of precision and recall.
         """
         model = staging_model["model"]
-        predictions = model.predict(test_data["texts"])
+        preds = model.predict(test_data["texts"])
+        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
         
         # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
         # Model was trained with mapping: {-1:0, 0:1, 1:2}
@@ -232,7 +235,8 @@ class TestModelPerformanceAndProductionPromotion:
         Prevents degenerate cases where model predicts only one class.
         """
         model = staging_model["model"]
-        predictions = model.predict(test_data["texts"])
+        preds = model.predict(test_data["texts"])
+        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
         
         # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
         # Model was trained with mapping: {-1:0, 0:1, 1:2}
