@@ -55,7 +55,7 @@ app = FastAPI()
 
 # Allow your extension's origin:
 origins = [
-    "chrome-extension://ddonnkogojeammnmjkhonjookeelpjok"  # your extension ID
+    "chrome-extension://bidebcjfcpllndgdmfgifiknmmlaehno"  # your extension ID
 ]
 
 app.add_middleware(
@@ -77,26 +77,6 @@ print("_________________________________________________________________________
 model = mlflow.sklearn.load_model(model_uri = "models:/yt-comment-analyzer/Production")
 
 #=============================================================================================================================================
-def prerocess(comment:str):
-    
-   
-    #lowercase every row data
-    comment = comment.lower()
-    
-
-    #remove stopwords
-    from nltk.corpus import stopwords
-    stop_words = set(stopwords.words('english'))
-    to_remove_stopWords = stop_words - {'not','but','however','no','yet'}
-    comment = " ".join([word for word in comment.split(" ") if word.lower() not in to_remove_stopWords])
-
-    # Lemitization 
-    from nltk.stem import WordNetLemmatizer
-    lemitizer  = WordNetLemmatizer()
-    comment = " ".join([lemitizer.lemmatize(word) for word in comment.split()])
-    
-    return comment
-#=============================================================================================================================================
 @app.get("/health")
 def health():
     return {"status": "healthy"}
@@ -104,11 +84,9 @@ def health():
 @app.post('/predict')
 def predict(data: InputData):
     
-    processed_comments = [prerocess(comment) for comment in data.text]
-    
 
 
-    predictions = model.predict(processed_comments)
+    predictions = model.predict(data.text)
     print(predictions)
 
     reverse_map = {0:-1,1:0,2:1}

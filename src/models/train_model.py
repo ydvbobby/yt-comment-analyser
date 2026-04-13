@@ -1,39 +1,65 @@
-from xgboost import XGBClassifier
-import pandas as pd
-import pickle
 import os
-from sklearn.pipeline import Pipeline
-from scipy import sparse
-from sklearn.feature_extraction.text import CountVectorizer
-import yaml
+import sys
+os.environ["PYTHONUTF8"] = "1"
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+
+
+import pandas as pd
+
+
+from tensorflow.keras.layers import TextVectorization
+from tensorflow.keras.callbacks import EarlyStopping
+
+
 
 
 processed_train = pd.read_csv('data/processed/processed_train.csv')
-processed_train.fillna("",inplace=True)
+processed_test = pd.read_csv('data/processed/processed_test.csv')
 
-x_train = processed_train['clean_comment']
-y_train = processed_train['category'].map({-1:0,0:1,1:2})
+# processed_train.fillna("",inplace=True)
+# processed_test.fillna("",inplace=True)
 
-max_features = yaml.safe_load(open('params.yaml','r'))['train_model']['max_features']
-vectorizer = CountVectorizer(max_features=max_features, ngram_range=(1,2))
+x_train = processed_train['clean_comment'].astype(str).to_numpy()
+x_test = processed_test['clean_comment'].astype(str).to_numpy()
 
-model = XGBClassifier(
-        objective="multi:softprob",   # multiclass
-        num_class=3,                  # number of classes
-        max_depth=6,
-        n_estimators=500,
-        learning_rate=0.1,
-        tree_method="hist")
+y_train = processed_train['category'].map({-1:0,0:1,1:2}).astype("int32").to_numpy()
+y_test = processed_test['category'].map({-1:0,0:1,1:2}).astype("int32").to_numpy()
 
-pipeline = Pipeline([
-    ('vectorizer',vectorizer),
-    ('model',model)
+
+
+vectorizer = TextVectorization(
+    max_tokens=10000,
+    output_mode='int',
+    output_sequence_length=400
+)
+
+vectorizer.adapt(x_train)
+
+
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, Dense, Dropout, Input, Bidirectional
+
+from tensorflow.keras.layers import LSTM, GRU
+
+early_stop = EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)
+
+model = Sequential([
+    Input(shape=(1,),dtype='string'),
+    vectorizer,
+    Embedding(10000, 128),
+    Bidirectional(GRU(64)),
+    Dense(128, activation='relu'),
+    Dropout(0.3),
+    Dense(64,activation='tanh'),
+    Dropout(0.2),
+    Dense(3, activation='softmax')
 ])
 
-pipeline.fit(x_train,y_train)
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.fit(x_train, y_train, epochs=5, batch_size=32, validation_data=(x_test, y_test), callbacks=[early_stop])
 
-os.makedirs("artifacts/models",exist_ok=True)
-
-pickle.dump(pipeline, open('artifacts/models/pipeline.pkl', "wb"))
-
-
+os.makedirs('artifacts/models', exist_ok=True)
+model.save('artifacts/models/comment_classifier.keras')

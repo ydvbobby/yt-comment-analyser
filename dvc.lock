@@ -10,34 +10,34 @@ stages:
       nfiles: 2
     - path: src/data/make_dataset.py
       hash: md5
-      md5: a6ec9cbb4e537438358848a25bffb818
-      size: 1721
+      md5: b4edbc0eb0cd8160527ea6747ce428a2
+      size: 1888
     params:
       params.yaml:
         make_dataset.test_size: 0.2
     outs:
     - path: data/raw
       hash: md5
-      md5: 8dfa9a8333e9b4df70cc491f2c42beda.dir
-      size: 7101340
+      md5: e0c59c862222681a3025c2bd1173689e.dir
+      size: 6925805
       nfiles: 2
   preprocess_data:
     cmd: python src/data/preprocess_data.py
     deps:
     - path: data/raw
       hash: md5
-      md5: 8dfa9a8333e9b4df70cc491f2c42beda.dir
-      size: 7101340
+      md5: e0c59c862222681a3025c2bd1173689e.dir
+      size: 6925805
       nfiles: 2
     - path: src/data/preprocess_data.py
       hash: md5
-      md5: 666338919be7bde400d276ec62eaff17
-      size: 1894
+      md5: e07961b693017f2ccbd832a67f4672a4
+      size: 2102
     outs:
     - path: data/processed
       hash: md5
-      md5: 4d06293369979f6888333b3765164e94.dir
-      size: 5319503
+      md5: efe31e5657af679753fb160d8d35c581.dir
+      size: 6574838
       nfiles: 2
   build_features:
     cmd: python src/features./build_features.py
@@ -70,36 +70,36 @@ stages:
     deps:
     - path: data/processed
       hash: md5
-      md5: 4d06293369979f6888333b3765164e94.dir
-      size: 5319503
+      md5: efe31e5657af679753fb160d8d35c581.dir
+      size: 6574838
       nfiles: 2
     - path: src/models/train_model.py
       hash: md5
-      md5: d187767bedd9cb9cc2c5434df8451a18
-      size: 1047
+      md5: 7b18dbb6f2f872d7fd36a02dc7f62b79
+      size: 1833
     params:
       params.yaml:
         train_model.max_features: 5000
     outs:
     - path: artifacts/models
       hash: md5
-      md5: b9cb691a4cc419585b65ccbe0cb44fa5.dir
-      size: 3092382
+      md5: a1e29090b6a99b472fada751abbb5368.dir
+      size: 16780235
       nfiles: 1
   predict_model:
     cmd: python src/models/predict_model.py
     deps:
     - path: artifacts
       hash: md5
-      md5: f1048eb00c165c82c882ed6665de7cb4.dir
-      size: 3710738
+      md5: b94e1a9b13686adb2fa3aa97f0153984.dir
+      size: 17398593
       nfiles: 4
     - path: data/processed
       hash: md5
-      md5: 4d06293369979f6888333b3765164e94.dir
-      size: 5319503
+      md5: efe31e5657af679753fb160d8d35c581.dir
+      size: 6574838
       nfiles: 2
     - path: src/models/predict_model.py
       hash: md5
-      md5: ed667bb25972046c955b0ef2d86f3228
-      size: 1432
+      md5: 2014bcfd9e504ef048f37dd01d469e54
+      size: 1625

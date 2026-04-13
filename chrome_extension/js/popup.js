@@ -1,4 +1,4 @@
-﻿base_url = 'http://15.206.73.219:80'
+﻿base_url = 'http://my-asg-1-1-521395776.ap-south-1.elb.amazonaws.com'
 
 // State management
 let state = {

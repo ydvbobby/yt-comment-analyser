@@ -38,22 +38,24 @@ def load_data(path):
     return df
 
 def save_data(data_path, train_data,test_data):
-    os.makedirs(data_path)
+    os.makedirs(data_path,exist_ok=True)
 
-    train_data.to_csv(os.path.join(data_path, "raw_train.csv"))
-    test_data.to_csv(os.path.join(data_path, 'raw_test.csv'))
+    train_data.to_csv(os.path.join(data_path, "raw_train.csv"),index=False)
+    test_data.to_csv(os.path.join(data_path, 'raw_test.csv'),index=False)
     
 def main():
     data = load_data('data/external/Reddit_Data.csv')
-    logger.info('data loaded succesfully')
+    data.dropna(inplace=True)
+    
+    logger.info(f'data loaded succesfully with shape {data.shape}')
 
     test_size = load_params('params.yaml')
     
-    train_data, test_data = train_test_split(data, test_size=test_size)
+    train_data, test_data = train_test_split(data, test_size=test_size,random_state=42)
     
     data_path = os.path.join('data', 'raw')
     save_data(data_path,train_data,test_data)
-    logger.info('raw data saved to the data folder')
+    logger.info('raw data saved succesfully')
 
 if __name__ == '__main__' :
     main()

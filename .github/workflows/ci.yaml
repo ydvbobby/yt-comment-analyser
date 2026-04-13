@@ -102,8 +102,7 @@ jobs:
             docker pull 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
             docker stop bobby-yt-comment-analyser || true
             docker rm bobby-yt-comment-analyser || true
-            docker run -d -p 80:8000 --env-file .env --name bobby-yt-comment-analyser 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
-
+            docker run -d -p 80:8000 --name bobby-yt-comment-analyser 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
 
     - name: push to  dvc
       run : dvc push
