@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 import json
 import numpy as np
+from tensorflow import keras
 
 
 class TestMLflowModelValidationAndPromotion:
@@ -56,7 +57,7 @@ class TestMLflowModelValidationAndPromotion:
             
             version = latest_versions[0].version
             model_uri = f"models:/{model_name}/{version}"
-            model = mlflow.sklearn.load_model(model_uri)
+            model = mlflow.keras.load_model(model_uri)
             
             return {"model": model, "version": version, "uri": model_uri}
             
@@ -163,7 +164,7 @@ class TestMLflowModelValidationAndPromotion:
         try:
             # Load from Staging stage (latest Staging version)
             model_uri = f"models:/{model_name}/Staging"
-            model = mlflow.sklearn.load_model(model_uri)
+            model = mlflow.keras.load_model(model_uri)
             
             assert model is not None, "Model loaded from Staging is None"
             

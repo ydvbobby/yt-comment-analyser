@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 import os
 from dotenv import load_dotenv
 
+from tensorflow import keras
+
 import nltk
 nltk.download('punkt')
 nltk.download('punkt_tab')
@@ -74,7 +76,7 @@ print(mlflow.get_tracking_uri())
 print("______________________________________________________________________________")
 
 # Load model from Unity Catalog
-model = mlflow.sklearn.load_model(model_uri = "models:/yt-comment-analyzer/Production")
+model = mlflow.keras.load_model(model_uri = "models:/yt-comment-analyzer/Production")
 
 #=============================================================================================================================================
 @app.get("/health")

@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from tensorflow import keras
 
 
 class TestModelPerformanceAndProductionPromotion:
@@ -61,7 +62,7 @@ class TestModelPerformanceAndProductionPromotion:
             
             version = staging_versions[0].version
             model_uri = f"models:/{model_name}/Staging"
-            model = mlflow.sklearn.load_model(model_uri)
+            model = mlflow.keras.load_model(model_uri)
             
             return {"model": model, "version": version, "uri": model_uri}
             
@@ -303,7 +304,7 @@ class TestModelPerformanceAndProductionPromotion:
         try:
             # Load from Production stage
             model_uri = f"models:/{model_name}/Production"
-            model = mlflow.sklearn.load_model(model_uri)
+            model = mlflow.keras.load_model(model_uri)
             
             assert model is not None, "Model loaded from Production is None"
             

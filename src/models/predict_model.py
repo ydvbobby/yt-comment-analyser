@@ -9,7 +9,8 @@ from mlflow.models.signature import infer_signature
 import os
 import sys
 from dotenv import load_dotenv
-from tensorflow.keras.models import load_model
+from tensorflow import keras
+from keras.models import load_model
 
 # Fix Windows console encoding for Unicode characters
 if sys.platform == "win32":
@@ -52,7 +53,7 @@ with mlflow.start_run():
     
     model_signature = infer_signature(x_test[:50], predictions[:50])
             
-    mlflow.sklearn.log_model(model,artifact_path="model", signature=model_signature,registered_model_name="yt-comment-analyzer")
+    mlflow.keras.log_model(model,artifact_path="model", signature=model_signature,registered_model_name="yt-comment-analyzer")
     
 
 
