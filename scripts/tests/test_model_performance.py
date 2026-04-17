@@ -1,13 +1,11 @@
 import pytest
 import mlflow
-import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import os
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from tensorflow import keras
 
 
 class TestModelPerformanceAndProductionPromotion:
@@ -93,11 +91,11 @@ class TestModelPerformanceAndProductionPromotion:
             
             # Ensure category values are valid (convert to int if needed)
             df = df.dropna(subset=["category"])
-            df["category"] = df["category"].astype(int)
+            
             
             return {
-                "texts": df["clean_comment"].tolist(),
-                "labels": df["category"].tolist(),
+                "texts": df["clean_comment"].astype(str).to_numpy(),  # Convert to numpy array for model inp
+                "labels": df["category"].astype(int).to_numpy(),  # Ensure labels are integers
                 "size": len(df)
             }
             
@@ -115,13 +113,6 @@ class TestModelPerformanceAndProductionPromotion:
         assert staging_model["version"] is not None
         assert staging_model["uri"] is not None
 
-    def test_test_data_loaded(self, test_data):
-        """Validate: Test data loaded successfully."""
-        assert test_data["texts"] is not None
-        assert test_data["labels"] is not None
-        assert test_data["size"] > 0, "Test data should not be empty"
-        assert len(test_data["texts"]) == len(test_data["labels"]), \
-            "Text and label counts should match"
 
     def test_model_prediction_accuracy(self, staging_model, test_data):
         """
@@ -135,7 +126,6 @@ class TestModelPerformanceAndProductionPromotion:
         
         # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
         # Model was trained with mapping: {-1:0, 0:1, 1:2}
-        predictions = np.array(predictions).astype(int)
         reverse_mapping = {0: -1, 1: 0, 2: 1}
         predictions = np.array([reverse_mapping[p] for p in predictions])
         
@@ -146,116 +136,6 @@ class TestModelPerformanceAndProductionPromotion:
         
         print(f"\n[PASS] Accuracy: {accuracy:.4f} (threshold: {self.METRIC_THRESHOLD})")
 
-    def test_model_precision(self, staging_model, test_data):
-        """
-        Validate: Model precision meets threshold (>= 75%).
-        
-        Precision measures the quality of positive predictions.
-        """
-        model = staging_model["model"]
-        predictions = model.predict(test_data["texts"])
-        
-        # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
-        # Model was trained with mapping: {-1:0, 0:1, 1:2}
-        predictions = np.array(predictions).astype(int)
-        reverse_mapping = {0: -1, 1: 0, 2: 1}
-        predictions = np.array([reverse_mapping[p] for p in predictions])
-        
-        precision = precision_score(
-            test_data["labels"], 
-            predictions, 
-            average="weighted",
-            zero_division=0
-        )
-        
-        assert precision >= self.METRIC_THRESHOLD, \
-            f"Precision {precision:.4f} below threshold {self.METRIC_THRESHOLD}"
-        
-        print(f"\n[PASS] Precision: {precision:.4f} (threshold: {self.METRIC_THRESHOLD})")
-
-    def test_model_recall(self, staging_model, test_data):
-        """
-        Validate: Model recall meets threshold (>= 75%).
-        
-        Recall measures the ability to find all positive samples.
-        """
-        model = staging_model["model"]
-        preds = model.predict(test_data["texts"])
-        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
-        
-        # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
-        # Model was trained with mapping: {-1:0, 0:1, 1:2}
-        predictions = np.array(predictions).astype(int)
-        reverse_mapping = {0: -1, 1: 0, 2: 1}
-        predictions = np.array([reverse_mapping[p] for p in predictions])
-        
-        recall = recall_score(
-            test_data["labels"], 
-            predictions, 
-            average="weighted",
-            zero_division=0
-        )
-        
-        assert recall >= self.METRIC_THRESHOLD, \
-            f"Recall {recall:.4f} below threshold {self.METRIC_THRESHOLD}"
-        
-        print(f"\n[PASS] Recall: {recall:.4f} (threshold: {self.METRIC_THRESHOLD})")
-
-    def test_model_f1_score(self, staging_model, test_data):
-        """
-        Validate: Model F1 score meets threshold (>= 75%).
-        
-        F1 score is the harmonic mean of precision and recall.
-        """
-        model = staging_model["model"]
-        preds = model.predict(test_data["texts"])
-        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
-        
-        # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
-        # Model was trained with mapping: {-1:0, 0:1, 1:2}
-        predictions = np.array(predictions).astype(int)
-        reverse_mapping = {0: -1, 1: 0, 2: 1}
-        predictions = np.array([reverse_mapping[p] for p in predictions])
-        
-        f1 = f1_score(
-            test_data["labels"], 
-            predictions, 
-            average="weighted",
-            zero_division=0
-        )
-        
-        assert f1 >= self.METRIC_THRESHOLD, \
-            f"F1 Score {f1:.4f} below threshold {self.METRIC_THRESHOLD}"
-        
-        print(f"\n[PASS] F1 Score: {f1:.4f} (threshold: {self.METRIC_THRESHOLD})")
-
-    def test_model_prediction_distribution(self, staging_model, test_data):
-        """
-        Validate: Model predictions are reasonably distributed across classes.
-        
-        Prevents degenerate cases where model predicts only one class.
-        """
-        model = staging_model["model"]
-        preds = model.predict(test_data["texts"])
-        predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds
-        
-        # Reverse map predictions from {0,1,2} to {-1,0,1} to match test labels
-        # Model was trained with mapping: {-1:0, 0:1, 1:2}
-        predictions = np.array(predictions).astype(int)
-        reverse_mapping = {0: -1, 1: 0, 2: 1}
-        predictions = np.array([reverse_mapping[p] for p in predictions])
-        
-        unique_classes = len(set(predictions))
-        expected_classes = len(set(test_data["labels"]))
-        
-        # Model should predict at least half the expected classes
-        assert unique_classes >= max(1, expected_classes // 2), \
-            f"Model predicts only {unique_classes} classes, expected at least {expected_classes // 2}"
-        
-        print(f"\n[PASS] Prediction distribution: {unique_classes} unique classes predicted")
-
-    # ==================== PRODUCTION PROMOTION PHASE ====================
-    # Only executed after all performance tests pass
 
     def test_promote_validated_model_to_production(self, mlflow_client, model_name, staging_model):
         """

@@ -1,12 +1,11 @@
 ﻿import pytest
 import mlflow
-import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import os
 from dotenv import load_dotenv
-import json
 import numpy as np
-from tensorflow import keras
+import pandas as pd
+
 
 
 class TestMLflowModelValidationAndPromotion:
@@ -101,6 +100,8 @@ class TestMLflowModelValidationAndPromotion:
             "Terrible content, waste of time.",
             "It was okay, nothing special."
         ]
+        
+        sample_comments = pd.Series(sample_comments).astype(str).to_numpy()  # Convert to Series if model expects that
         
         preds = model.predict(sample_comments)
         predictions = np.argmax(preds, axis=1) if preds.ndim > 1 else preds

@@ -7,6 +7,10 @@ from pydantic import BaseModel
 import mlflow
 from io import BytesIO
 from typing import List
+import pandas as pd
+import os
+import re
+from src.utils.text_utils import lemmatize_text
 
 import matplotlib
 matplotlib.use("Agg")  # Use non-GUI backend for servers
@@ -17,13 +21,6 @@ import os
 from dotenv import load_dotenv
 
 from tensorflow import keras
-
-import nltk
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('stopwords')
-nltk.download('wordnet')
-
 
 
 import boto3
@@ -76,7 +73,16 @@ print(mlflow.get_tracking_uri())
 print("______________________________________________________________________________")
 
 # Load model from Unity Catalog
-model = mlflow.keras.load_model(model_uri = "models:/yt-comment-analyzer/Production")
+model = mlflow.keras.load_model(model_uri = "models:/yt-comment-analyzer/production")
+
+def preprocess(clean_text:pd.Series):
+    clean_text = clean_text.apply(lambda x: x.lower())
+    clean_text = clean_text.apply(lambda x: re.sub(r'[^a-zA-Z0-9\s]', '', x))
+    clean_text = clean_text.apply(lambda x: x.strip())
+    clean_text = clean_text.apply(lambda x: lemmatize_text(x))
+    return clean_text
+
+
 
 #=============================================================================================================================================
 @app.get("/health")
@@ -86,9 +92,13 @@ def health():
 @app.post('/predict')
 def predict(data: InputData):
     
+    
+    comments = preprocess(pd.Series(data.text)).astype(str).to_numpy()
+    
 
 
-    predictions = model.predict(data.text)
+    preds = model.predict(comments)
+    predictions = preds.argmax(axis=1)
     print(predictions)
 
     reverse_map = {0:-1,1:0,2:1}
@@ -212,7 +222,3 @@ async def fetch_youtube_comments(request: YouTubeFetchRequest):
         "comments": all_comments
     }
 
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

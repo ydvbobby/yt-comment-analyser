@@ -1,4 +1,4 @@
-﻿base_url = 'http://my-asg-1-1-521395776.ap-south-1.elb.amazonaws.com'
+﻿base_url = 'http://localhost:8000';
 
 // State management
 let state = {

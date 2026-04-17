@@ -9,9 +9,10 @@ stages:
     outs:
     - data/raw
   preprocess_data:
-    cmd: python src/data/preprocess_data.py
+    cmd: python -m src.data.preprocess_data
     deps:
     - data/raw
+    - src/utils
     - src/data/preprocess_data.py
     outs:
     - data/processed

@@ -22,7 +22,7 @@ stages:
       size: 6925805
       nfiles: 2
   preprocess_data:
-    cmd: python src/data/preprocess_data.py
+    cmd: python -m src.data.preprocess_data
     deps:
     - path: data/raw
       hash: md5
@@ -31,8 +31,13 @@ stages:
       nfiles: 2
     - path: src/data/preprocess_data.py
       hash: md5
-      md5: e07961b693017f2ccbd832a67f4672a4
-      size: 2102
+      md5: 28aced9d9eff8714469f740eb3603a0c
+      size: 1246
+    - path: src/utils
+      hash: md5
+      md5: d2d9e5a035f7a6286aab96ce0e44d552.dir
+      size: 3055
+      nfiles: 4
     outs:
     - path: data/processed
       hash: md5
@@ -101,5 +106,5 @@ stages:
       nfiles: 2
     - path: src/models/predict_model.py
       hash: md5
-      md5: 2014bcfd9e504ef048f37dd01d469e54
-      size: 1625
+      md5: e43d7db80ec3964a0bb9816115477727
+      size: 1642
