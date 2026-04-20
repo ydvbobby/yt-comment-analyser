@@ -6,5 +6,5 @@ nltk==3.9.2
 pydantic==2.12.5
 python-dotenv==1.2.2
 boto3
-xgboost
+keras
 uvicorn==0.35.0
