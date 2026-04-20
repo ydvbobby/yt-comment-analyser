@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 import os
 from dotenv import load_dotenv
 
-from tensorflow import keras
 
 
 import boto3

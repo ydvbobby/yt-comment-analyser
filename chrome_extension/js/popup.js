@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:8000';
+﻿const baseUrl = 'http://13.235.78.53:80';
 const API_KEY_STORAGE_KEY = 'youtube_api_key';
 
 // State management
