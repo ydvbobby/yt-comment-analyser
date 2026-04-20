@@ -1,4 +1,5 @@
-﻿base_url = 'http://localhost:8000';
+const baseUrl = 'http://localhost:8000';
+const API_KEY_STORAGE_KEY = 'youtube_api_key';
 
 // State management
 let state = {
@@ -40,15 +41,40 @@ function setLoading(loading) {
   state.isLoading = loading;
 }
 
-async function getTotalComments(videoId) {
-  const response = await fetch(base_url + '/fetch-youtube-comments', {
+function getApiKeyInput() {
+  return document.getElementById('youtube_api_key');
+}
+
+function getStoredApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE_KEY) || '';
+}
+
+function setStoredApiKey(apiKey) {
+  localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function getTotalComments(videoId, apiKey) {
+  const response = await fetch(baseUrl + '/fetch-youtube-comments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ video_id: videoId })
+    body: JSON.stringify({ video_id: videoId, api_key: apiKey })
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch comments from backend');
+    let errorMessage = 'Failed to fetch comments from backend';
+    try {
+      const errorData = await response.json();
+      if (errorData.detail) errorMessage = errorData.detail;
+    } catch (_) {
+      // Keep the fallback message when the backend response is not JSON.
+    }
+    throw new Error(errorMessage);
   }
 
   const data = await response.json();
@@ -56,15 +82,17 @@ async function getTotalComments(videoId) {
 }
 
 async function getPredictions(comments) {
-  const response = await fetch(base_url + '/predict', {
+  const response = await fetch(baseUrl + '/predict', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: comments })
   });
 
   const data = await response.json();
-  let negative = 0, neutral = 0, positive = 0;
-  
+  let negative = 0;
+  let neutral = 0;
+  let positive = 0;
+
   data.predictions.forEach(p => {
     if (p === -1) negative++;
     else if (p === 0) neutral++;
@@ -76,7 +104,7 @@ async function getPredictions(comments) {
 
 async function fetchPieChart(pos, neu, neg) {
   try {
-    const response = await fetch(base_url + '/pie-chart', {
+    const response = await fetch(baseUrl + '/pie-chart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ positive: pos, neutral: neu, negative: neg })
@@ -106,7 +134,9 @@ function renderComments() {
       container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">No comments</p>';
       return;
     }
-    container.innerHTML = comments.map(c => '<div class="comment-item">' + c + '</div>').join('');
+    container.innerHTML = comments
+      .map(comment => '<div class="comment-item">' + escapeHtml(comment) + '</div>')
+      .join('');
   };
 
   renderTab(state.posComments, 'tab-content-positive');
@@ -141,7 +171,16 @@ function updateSentimentDisplay(positive, negative, neutral, total) {
 document.getElementById('fetch_comments').addEventListener('click', async () => {
   if (state.isLoading) return;
 
-  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+  const apiKey = getApiKeyInput().value.trim();
+  if (!apiKey) {
+    showStatus('Enter your YouTube API key before fetching comments', 'error');
+    getApiKeyInput().focus();
+    return;
+  }
+
+  setStoredApiKey(apiKey);
+
+  chrome.tabs.query({ active: true, currentWindow: true }, async tabs => {
     const url = tabs[0].url;
     const match = url.match(/^(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/);
 
@@ -151,7 +190,7 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
     }
 
     const videoId = match[1];
-    
+
     document.getElementById('video-title').textContent = 'Analyzing video...';
     document.getElementById('video-title').classList.remove('placeholder');
 
@@ -159,7 +198,8 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
     hideStatus();
 
     try {
-      const commentsData = await getTotalComments(videoId);
+      updateProgress(20, 'Fetching comments...');
+      const commentsData = await getTotalComments(videoId, apiKey);
       const allComments = commentsData.allComments;
 
       if (allComments.length === 0) {
@@ -172,7 +212,7 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
       updateProgress(60, 'Analyzing sentiment...');
       const predictions = await getPredictions(allComments);
       updateProgress(90, 'Generating visualization...');
-      
+
       state.posComments = allComments.filter((_, i) => predictions.allPredictions[i] === 1);
       state.negComments = allComments.filter((_, i) => predictions.allPredictions[i] === -1);
       state.neuComments = allComments.filter((_, i) => predictions.allPredictions[i] === 0);
@@ -184,8 +224,10 @@ document.getElementById('fetch_comments').addEventListener('click', async () => 
       document.getElementById('tabs-container').classList.add('visible');
 
       showStatus('Analyzed ' + allComments.length + ' comments', 'success');
-      setTimeout(() => { hideProgress(); setLoading(false); }, 1000);
-
+      setTimeout(() => {
+        hideProgress();
+        setLoading(false);
+      }, 1000);
     } catch (error) {
       showStatus('Error: ' + error.message, 'error');
       setLoading(false);
@@ -205,9 +247,13 @@ document.querySelectorAll('.box').forEach(box => {
   });
 });
 
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
   if (tabs[0] && tabs[0].url && tabs[0].url.match(/youtube\.com\/watch\?v=/)) {
     document.getElementById('video-title').textContent = 'YouTube video detected';
     document.getElementById('video-title').classList.remove('placeholder');
   }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  getApiKeyInput().value = getStoredApiKey();
 });

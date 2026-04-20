@@ -99,10 +99,10 @@ jobs:
             aws configure set default.region ${{ secrets.AWS_REGION }}
 
             aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 842990484831.dkr.ecr.ap-south-1.amazonaws.com
-            docker pull 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
-            docker stop bobby-yt-comment-analyser || true
-            docker rm bobby-yt-comment-analyser || true
-            docker run -d -p 80:8000 --name bobby-yt-comment-analyser 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
+            sudo docker pull 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
+            sudo docker stop bobby-yt-comment-analyser || true
+            sudo docker rm bobby-yt-comment-analyser || true
+            sudo docker run -d -p 80:8000 --name bobby-yt-comment-analyser 842990484831.dkr.ecr.ap-south-1.amazonaws.com/bobby-yt-comment-analyser:latest
 
     - name: push to  dvc
       run : dvc push

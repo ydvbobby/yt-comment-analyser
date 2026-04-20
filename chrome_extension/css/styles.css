@@ -81,6 +81,50 @@ header .subtitle {
   font-style: italic;
 }
 
+/* API Key Input */
+.api-key-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.api-key-card label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.api-key-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.api-key-card input::placeholder {
+  color: var(--text-secondary);
+}
+
+.api-key-card input:focus {
+  border-color: rgba(108, 99, 255, 0.85);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+}
+
+.api-key-help {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
 /* Sentiment Container */
 .sentiment-container {
   margin-bottom: 20px;

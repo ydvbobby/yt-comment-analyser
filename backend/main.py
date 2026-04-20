@@ -3,14 +3,13 @@ from fastapi import FastAPI, HTTPException
 import httpx
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import mlflow
 from io import BytesIO
 from typing import List
 import pandas as pd
 import os
 import re
-from src.utils.text_utils import lemmatize_text
 
 import matplotlib
 matplotlib.use("Agg")  # Use non-GUI backend for servers
@@ -42,6 +41,7 @@ class SentimentCounts(BaseModel):
 
 class YouTubeFetchRequest(BaseModel):
     video_id: str
+    api_key: str = Field(..., min_length=1)
 
 class YouTubeCommentsResponse(BaseModel):
     comments: List[str]
@@ -74,6 +74,45 @@ print("_________________________________________________________________________
 
 # Load model from Unity Catalog
 model = mlflow.keras.load_model(model_uri = "models:/yt-comment-analyzer/production")
+
+import nltk
+nltk.download('punkt_tab')
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger_eng')
+
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+from nltk import pos_tag, word_tokenize
+
+
+lemmatizer = WordNetLemmatizer()
+
+def lemmatize_text(text):
+    tokens = word_tokenize(text.lower())
+    pos_tags = pos_tag(tokens)
+    
+
+    # Map NLTK POS to WordNet POS
+    def get_wordnet_pos(tag):
+        if tag.startswith('J'):
+            return wordnet.ADJ
+        elif tag.startswith('V'):
+            return wordnet.VERB
+        elif tag.startswith('N'):
+            return wordnet.NOUN
+        elif tag.startswith('R'):
+            return wordnet.ADV
+        else:
+            return wordnet.NOUN  # default
+
+    lemmas = [
+        lemmatizer.lemmatize(word, get_wordnet_pos(tag))
+        for word, tag in pos_tags
+    ]
+
+    return " ".join(lemmas)
+
 
 def preprocess(clean_text:pd.Series):
     clean_text = clean_text.apply(lambda x: x.lower())
@@ -170,9 +209,9 @@ async def fetch_youtube_comments(request: YouTubeFetchRequest):
     Returns:
         Dictionary with total_comments count and list of comment texts
     """
-    api_key = os.getenv("YOUTUBE_API_KEY")
+    api_key = request.api_key.strip()
     if not api_key:
-        raise HTTPException(status_code=500, detail="YOUTUBE_API_KEY not configured")
+        raise HTTPException(status_code=400, detail="YouTube API key is required")
     
     all_comments = []
     page_token = ""
@@ -195,9 +234,19 @@ async def fetch_youtube_comments(request: YouTubeFetchRequest):
                 response.raise_for_status()
                 data = response.json()
             except httpx.HTTPError as e:
+                error_message = str(e)
+                status_code = 500
+                if hasattr(e, "response") and e.response is not None:
+                    status_code = e.response.status_code
+                    try:
+                        error_payload = e.response.json()
+                        api_error = error_payload.get("error", {})
+                        error_message = api_error.get("message", error_message)
+                    except ValueError:
+                        pass
                 raise HTTPException(
-                    status_code=response.status_code if hasattr(e, 'response') and e.response else 500,
-                    detail=f"YouTube API error: {str(e)}"
+                    status_code=status_code,
+                    detail=f"YouTube API error: {error_message}"
                 )
             
             items = data.get("items", [])
@@ -205,7 +254,8 @@ async def fetch_youtube_comments(request: YouTubeFetchRequest):
                 break
             
             for item in items:
-                comment_text = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+                comment_snippet = item["snippet"]["topLevelComment"]["snippet"]
+                comment_text = comment_snippet.get("textOriginal") or comment_snippet.get("textDisplay", "")
                 all_comments.append(comment_text)
                 
                 if len(all_comments) >= max_comments:

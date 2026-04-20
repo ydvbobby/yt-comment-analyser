@@ -18,7 +18,7 @@ The current application flow is:
 
 1. Open a YouTube video.
 2. Launch the Chrome extension popup.
-3. The extension sends the video ID to the backend.
+3. The extension sends the video ID and the user-provided YouTube API key to the backend.
 4. The backend fetches comments with the YouTube Data API.
 5. The backend predicts sentiment for each comment using the trained model.
 6. The extension displays counts, percentages, grouped comments, and a pie chart.
@@ -96,7 +96,7 @@ Implemented endpoints:
 - `POST /pie-chart`
   Accepts sentiment counts and returns a PNG pie chart.
 - `POST /fetch-youtube-comments`
-  Accepts a YouTube `video_id` and returns fetched comments.
+  Accepts a YouTube `video_id` plus a YouTube Data API key and returns fetched comments.
 
 The backend currently:
 
@@ -157,13 +157,12 @@ Create a `.env` file with the values required by the backend and MLflow setup. B
 
 ```env
 mlflow_tracking_uri=...
-YOUTUBE_API_KEY=...
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=...
 ```
 
-Use the exact names expected by your runtime and deployment setup.
+The Chrome extension now asks the user for the YouTube Data API key directly in the popup, so `YOUTUBE_API_KEY` is no longer required in `.env`.
 
 ### 4. Pull data if using DVC
 

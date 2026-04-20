@@ -30,9 +30,9 @@ y_test = processed_test['category'].map({-1:0,0:1,1:2}).astype("int32").to_numpy
 
 
 vectorizer = TextVectorization(
-    max_tokens=10000,
+    max_tokens=8000,
     output_mode='int',
-    output_sequence_length=400
+    output_sequence_length=250
 )
 
 vectorizer.adapt(x_train)
@@ -49,11 +49,11 @@ early_stop = EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=
 model = Sequential([
     Input(shape=(1,),dtype='string'),
     vectorizer,
-    Embedding(10000, 128),
-    Bidirectional(GRU(64)),
-    Dense(128, activation='relu'),
+    Embedding(8000, 64),
+    Bidirectional(GRU(28)),
+    Dense(64, activation='relu'),
     Dropout(0.3),
-    Dense(64,activation='tanh'),
+    Dense(28,activation='tanh'),
     Dropout(0.2),
     Dense(3, activation='softmax')
 ])
