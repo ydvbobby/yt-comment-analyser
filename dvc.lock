@@ -35,7 +35,7 @@ stages:
       size: 1206
     - path: src/utils
       hash: md5
-      md5: b037bac12f77cc241470a286a9e548ec.dir
+      md5: 675d7e53430acecf51f1a82883eb3e40.dir
       size: 3341
       nfiles: 4
     outs:
@@ -80,24 +80,24 @@ stages:
       nfiles: 2
     - path: src/models/train_model.py
       hash: md5
-      md5: a231f7ff9491051c5644d9e43c1afbc7
-      size: 1769
+      md5: 6d7eb600a00ef68d71953dbcbfdda205
+      size: 1765
     params:
       params.yaml:
         train_model.max_features: 5000
     outs:
     - path: artifacts/models
       hash: md5
-      md5: 5aea31385d6f1c3584cefb5040577767.dir
-      size: 16760265
+      md5: 47dde6ebeec3f7354c64c2c5c9bbb465.dir
+      size: 6575443
       nfiles: 1
   predict_model:
     cmd: python src/models/predict_model.py
     deps:
     - path: artifacts
       hash: md5
-      md5: 2a1f00174e5048a9abaa678aa747b6dc.dir
-      size: 17378621
+      md5: 49d0c9ede1a967ca0cd3506cf8458517.dir
+      size: 7193799
       nfiles: 4
     - path: data/processed
       hash: md5
